@@ -1,6 +1,7 @@
 package com.example.schedules.service;
 
 import com.example.schedules.dto.ScheduleResponseDto;
+import com.example.schedules.dto.ScheduleUsernameResponseDto;
 import com.example.schedules.entity.Schedule;
 import com.example.schedules.entity.User;
 import com.example.schedules.repository.ScheduleRepository;
@@ -16,7 +17,7 @@ import java.util.List;
 public class ScheduleService {
   private final UserRepository userRepository;
   private final ScheduleRepository scheduleRepository;
-
+  // 일정 생성
   public ScheduleResponseDto save(String title, String contents, String username) {
     User findUser = userRepository.findUserByUsernameOrElseThrow(username);
     Schedule schedule = new Schedule(title, contents);
@@ -25,7 +26,7 @@ public class ScheduleService {
     return new ScheduleResponseDto(schedule.getId(), schedule.getTitle(), schedule.getContents());
 
   }
-
+  // 모든 일정 조회
   public List<ScheduleResponseDto> findAll() {
     // 모든 Schedule 객체를 가져와서 schedules 리스트에 저장
     List<Schedule> schedules = scheduleRepository.findAll();
@@ -36,5 +37,11 @@ public class ScheduleService {
       responseDtos.add(ScheduleResponseDto.toDto(schedule));
     }
     return responseDtos;
+  }
+  // 특정 일정 조회
+  public ScheduleUsernameResponseDto findById(Long id) {
+    Schedule findSchedule = scheduleRepository.findByIdOrElseThrow(id);
+    User writer = findSchedule.getUser();
+    return new ScheduleUsernameResponseDto(findSchedule.getTitle(), findSchedule.getContents(),writer.getUsername());
   }
 }
