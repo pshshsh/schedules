@@ -10,9 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -36,15 +36,21 @@ public class UserService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist id = " + id);
     }
     User findUser = optionalUser.get();
-    return new UserResponseDto(findUser.getUsername(), findUser.getEmail());
+    return new UserResponseDto(
+        findUser.getUsername(),
+        findUser.getEmail(),
+        findUser.getCreatedAt(),
+        findUser.getModifiedAt()
+    );
   }
-
   // 유저 전체 조회
   public List<UserResponseDto> findAll() {
-    return userRepository.findAll().stream()
-        .map(UserResponseDto::toDto)
-        .collect(Collectors.toList());
-
+    List<User> users = userRepository.findAll();
+    List<UserResponseDto> responseDtos = new ArrayList<>();
+    for (User user : users) {
+      responseDtos.add(UserResponseDto.toDto(user));
+    }
+    return responseDtos;
   }
   // 유저 비밀 번호 수정
   @Transactional
