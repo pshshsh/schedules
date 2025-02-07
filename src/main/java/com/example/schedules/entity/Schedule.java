@@ -22,6 +22,8 @@ public class Schedule extends BaseEntity {
   @JoinColumn(name = "user_id")
   private User user;
 
+
+
   public Schedule(){
 
   }

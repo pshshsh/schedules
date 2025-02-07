@@ -23,7 +23,13 @@ public class ScheduleService {
     Schedule schedule = new Schedule(title, contents);
     schedule.SetUser(findUser);
     scheduleRepository.save(schedule);
-    return new ScheduleResponseDto(schedule.getId(), schedule.getTitle(), schedule.getContents());
+    return new ScheduleResponseDto(
+        schedule.getId(),
+        schedule.getTitle(),
+        schedule.getContents(),
+        schedule.getCreatedAt(),
+        schedule.getModifiedAt()
+    );
 
   }
   // 모든 일정 조회
@@ -42,7 +48,7 @@ public class ScheduleService {
   public ScheduleUsernameResponseDto findById(Long id) {
     Schedule findSchedule = scheduleRepository.findByIdOrElseThrow(id);
     User writer = findSchedule.getUser();
-    return new ScheduleUsernameResponseDto(findSchedule.getTitle(), findSchedule.getContents(),writer.getUsername());
+    return new ScheduleUsernameResponseDto(findSchedule.getTitle(), findSchedule.getContents(), writer.getUsername(), findSchedule.getCreatedAt(), findSchedule.getModifiedAt());
   }
 
   // 일정 수정
