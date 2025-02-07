@@ -2,7 +2,9 @@ package com.example.schedules.entity;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
+@Getter
 @Entity
 @Table(name = "schedules")
 public class Schedule extends BaseEntity {
@@ -20,5 +22,16 @@ public class Schedule extends BaseEntity {
   @JoinColumn(name = "user_id")
   private User user;
 
+  public Schedule(){
+
+  }
+  public Schedule(String title, String contents){
+    this.title = title;
+    this.contents = contents;
+  }
+  //Schedule 객체에 User 객체를 설정하는 메서드
+  public void SetUser(User user) {
+    this.user = user;
+  }
 
 }
