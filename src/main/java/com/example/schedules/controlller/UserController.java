@@ -1,10 +1,10 @@
 package com.example.schedules.controlller;
 
-import com.example.schedules.dto.SignUpRequestDto;
-import com.example.schedules.dto.SignUpResponseDto;
-import com.example.schedules.dto.UpdatePasswordRequestDto;
-import com.example.schedules.dto.UserResponseDto;
+import com.example.schedules.config.Const;
+import com.example.schedules.dto.*;
 import com.example.schedules.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +32,7 @@ public class UserController {
   // 유저 조회
   @GetMapping("/{id}")
   public ResponseEntity<UserResponseDto> findById(@PathVariable Long id){
-    UserResponseDto userResponsDto = userService.findByID(id);
+    UserResponseDto userResponsDto = userService.findById(id);
     return new ResponseEntity<>(userResponsDto,HttpStatus.OK);
 
   }
@@ -60,4 +60,33 @@ public class UserController {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-}
+  // 로그인
+  @PostMapping("/login")
+  public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto dto, HttpServletRequest request) {
+    // 사용자 정보 확인
+    LoginResponseDto responseDto = userService.login(dto.getEmail(), dto.getPassword());
+    Long userId = responseDto.getId();
+    // 실패시 예외처리
+    if (userId == null) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 401에러
+    }
+    // 로그인 성공시 , request에 존재하면  기존 session 반환, 없을경우 새로 session 생성
+    HttpSession session = request.getSession();
+    UserResponseDto loginUser = userService.findById(userId);
+    // 세션에 로그인한 사용자 정보 저장
+    session.setAttribute(Const.LOGIN_USER, loginUser);
+    return new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+  }
+  //로그아웃
+  @PostMapping("/logout")
+  public ResponseEntity<String> logout(HttpServletRequest request) {
+    // 로그인하지 않으면 HttpSession이 null로 반환된다.
+    HttpSession session = request.getSession(false);
+    // 세션이 존재하면 -> 로그인이 된 경우
+    if (session != null) {
+      session.invalidate();  // 해당 세션 삭제
+    }
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+  }

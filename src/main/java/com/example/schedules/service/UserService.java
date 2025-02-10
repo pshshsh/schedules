@@ -1,5 +1,6 @@
 package com.example.schedules.service;
 
+import com.example.schedules.dto.LoginResponseDto;
 import com.example.schedules.dto.SignUpResponseDto;
 import com.example.schedules.dto.UserResponseDto;
 import com.example.schedules.entity.User;
@@ -29,7 +30,7 @@ public class UserService {
   }
 
   // 유저 조회
-  public UserResponseDto findByID(Long id) {
+  public UserResponseDto findById(Long id) {
     Optional<User> optionalUser = userRepository.findById(id);
     // NPE 방지
     if (optionalUser.isEmpty()) {
@@ -43,6 +44,7 @@ public class UserService {
         findUser.getModifiedAt()
     );
   }
+
   // 유저 전체 조회
   public List<UserResponseDto> findAll() {
     List<User> users = userRepository.findAll();
@@ -52,6 +54,7 @@ public class UserService {
     }
     return responseDtos;
   }
+
   // 유저 비밀 번호 수정
   @Transactional
   public void updatePassword(Long id, String oldPassword, String newPassword) {
@@ -70,4 +73,16 @@ public class UserService {
     userRepository.delete(findUser);
   }
 
-}
+
+  // 로그인
+  public LoginResponseDto login(String email, String password) {
+    // 이메일로 사용자 정보 조회
+    User findUser = userRepository.findByEmailOrElseThrow(email);
+  // 데이터베이스 조회한 사용자 비밀번호와 사용자가 입력한 비밀번호 비교
+    if (findUser.getPassword().equals(password)) {
+      return new LoginResponseDto(findUser.getId(), findUser.getEmail());
+    } else {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+  }
+    }
