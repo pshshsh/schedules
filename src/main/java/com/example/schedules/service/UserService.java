@@ -73,7 +73,7 @@ public class UserService {
     userRepository.delete(findUser);
   }
 
-
+  @Transactional
   // 로그인
   public LoginResponseDto login(String email, String password) {
     // 이메일로 사용자 정보 조회
