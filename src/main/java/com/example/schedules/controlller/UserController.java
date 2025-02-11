@@ -7,13 +7,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@Slf4j
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -78,10 +79,12 @@ public class UserController {
       return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 401에러
     }
     // 로그인 성공시 , request에 존재하면  기존 session 반환, 없을경우 새로 session 생성
-    HttpSession session = request.getSession();
+    HttpSession session = request.getSession(true);
     UserResponseDto loginUser = userService.findById(userId);
     // 세션에 로그인한 사용자 정보 저장
     session.setAttribute(Const.LOGIN_USER, loginUser);
+    log.info("로그인 성공 - 세션 저장: " + loginUser.getUsername());
+
     return new ResponseEntity<>(responseDto, HttpStatus.OK);
 
   }
@@ -93,6 +96,7 @@ public class UserController {
     // 세션이 존재하면 -> 로그인이 된 경우
     if (session != null) {
       session.invalidate();  // 해당 세션 삭제
+      log.info("로그아웃 성공 - 세션 삭제 완료");
     }
     return new ResponseEntity<>(HttpStatus.OK);
   }

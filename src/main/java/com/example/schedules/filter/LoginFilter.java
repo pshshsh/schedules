@@ -1,5 +1,6 @@
 package com.example.schedules.filter;
 
+import com.example.schedules.config.Const;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,22 +18,28 @@ public class LoginFilter implements Filter {
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     String requestURI = httpRequest.getRequestURI();
-
     HttpServletResponse httpResponse = (HttpServletResponse) response;
 
     log.info("로그인 필터 로직 실행");
-    // 로그인을 체크 해야하는 URL인지 검사
-    // whiteListURL에 포함된 경우 true 반환 -> !true = false
+    // 화이트리스트에 포함되지 않은 경우 세션 체크
     if(!isWhiteList(requestURI)){
-      // 로그인 확인 -> 로그인하면 session에 값이 저장되어 있다는 가정.
-      // 세션이 존재하면 가져온다. 세션이 없으면 session = null
       HttpSession session = httpRequest.getSession(false);
-      // 로그인하지 않은 사용자인 경우
-      if (session == null || session.getAttribute("userId") == null) {
-        throw new RuntimeException("로그인 해주세요.");
+
+      // 세션이 존재하는지 확인
+      if (session == null) {
+        log.error("세션이 존재하지 않음: " + requestURI);
+        httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+        return;
       }
-      // 로그인 성공 로직
-      log.info("로그인에 성공했습니다.");
+      // 세션에서 로그인 정보 확인
+      Object userSession = session.getAttribute(Const.LOGIN_USER);
+      log.info("현재 세션 값: " + userSession);
+      if (userSession == null) {
+        log.error("세션에 로그인 정보 없음: " + requestURI);
+        httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+        return;
+      }
+      log.info("로그인된 사용자 요청: " + requestURI);
     }
     // 1번경우 : whiteListURL에 등록된 URL 요청이면 바로 chain.doFilter()
     // 2번경우 : 필터 로직 통과 후 다음 필터 호출 chain.doFilter()
