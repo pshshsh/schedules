@@ -5,9 +5,11 @@ import com.example.schedules.dto.*;
 import com.example.schedules.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,13 +21,18 @@ public class UserController {
   private final UserService userService;
   // 유저 생성
   @PostMapping("/signup")
-  public ResponseEntity<SignUpResponseDto> signup(@RequestBody SignUpRequestDto requestDto){
+  public ResponseEntity<SignUpResponseDto> signup(@Valid @RequestBody SignUpRequestDto requestDto, BindingResult bindingResult){
+    if (bindingResult.hasErrors()) {
+      // 유효성 검사 오류가 있으면, 오류 메시지를 반환
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
     SignUpResponseDto signUpResponseDto =
         userService.signUp(
             requestDto.getUsername(),
             requestDto.getPassword(),
             requestDto.getEmail()
         );
+
     return new ResponseEntity<>(signUpResponseDto, HttpStatus.CREATED);
   }
 
