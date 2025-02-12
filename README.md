@@ -1,6 +1,10 @@
 # schedules
 일정 관리 앱 만들기
 
+# ERD
+![Schedules_ERD](https://github.com/user-attachments/assets/ed7c8c8b-2bc7-4f3c-aa70-3dff0928fd34)
+
+
 #  Schedule API 명세서
 
 | 기능           | Method  | URL                    | 요청 형식                                                      | 응답 형식                                                                                                                  | 상태코드       |
