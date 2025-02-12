@@ -1,5 +1,6 @@
 package com.example.schedules.service;
 
+import com.example.schedules.config.PasswordEncoder;
 import com.example.schedules.dto.LoginResponseDto;
 import com.example.schedules.dto.SignUpResponseDto;
 import com.example.schedules.dto.UserResponseDto;
@@ -20,10 +21,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
   private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
 
   // 유저 생성
   public SignUpResponseDto signUp(String username, String password, String email) {
-    User user = new User(username, password, email);
+    // 비밀번호 암호화
+    String encodePassword = passwordEncoder.encode(password);
+    User user = new User(username, encodePassword, email);
     User savedUser = userRepository.save(user);
     return new SignUpResponseDto(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail());
 
@@ -60,11 +64,11 @@ public class UserService {
   public void updatePassword(Long id, String oldPassword, String newPassword) {
     User findUser = userRepository.findByIdOrElseThrow(id);
 
-    if (!findUser.getPassword().equals(oldPassword)) {
+    if (!passwordEncoder.matches(oldPassword, findUser.getPassword())) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
     }
 
-    findUser.updatePassword(newPassword);
+    findUser.updatePassword(passwordEncoder.encode(newPassword));
   }
 
   // 유저 삭제
@@ -79,7 +83,7 @@ public class UserService {
     // 이메일로 사용자 정보 조회
     User findUser = userRepository.findByEmailOrElseThrow(email);
   // 데이터베이스 조회한 사용자 비밀번호와 사용자가 입력한 비밀번호 비교
-    if (findUser.getPassword().equals(password)) {
+    if (passwordEncoder.matches(password, findUser.getPassword())) {
       return new LoginResponseDto(findUser.getId(), findUser.getEmail());
     } else {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
