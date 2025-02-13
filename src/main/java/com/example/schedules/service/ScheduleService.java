@@ -44,6 +44,7 @@ public class ScheduleService {
     }
     return responseDtos;
   }
+
   // 특정 일정 조회
   public ScheduleUsernameResponseDto findById(Long id) {
     Schedule findSchedule = scheduleRepository.findByIdOrElseThrow(id);
