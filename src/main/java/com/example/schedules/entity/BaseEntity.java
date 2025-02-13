@@ -9,7 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-//
+
 @Getter
 @MappedSuperclass // 상속받는 엔티티에서 사용하게 함
 @EntityListeners(AuditingEntityListener.class)

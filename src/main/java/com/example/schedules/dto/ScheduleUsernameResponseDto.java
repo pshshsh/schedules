@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+// 특정 일정 조회시 응답되는 Dto(유저 이름 포함)
 @Getter
 public class ScheduleUsernameResponseDto {
   private final String title;
